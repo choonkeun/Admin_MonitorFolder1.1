@@ -1,0 +1,39 @@
+﻿2016-09-27 15:44:45,571 DEBUG - Program Started
+2016-09-27 15:44:45,571 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4836_1.jpg
+2016-09-27 15:44:45,571 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4850.jpg
+2016-09-27 15:46:44,333 DEBUG - Folder 1: Existing file: D:\MonitorFolder\Web API ODATA.jpg
+2016-09-27 15:46:46,467 DEBUG - Send Mail: 1 times
+2016-09-27 15:47:49,338 DEBUG - Send Text: 1 times to 9498291131@vtext.com
+2016-09-27 15:47:51,483 DEBUG - Send Mail: 2 times
+2016-09-27 15:48:52,782 DEBUG - Send Text: 2 times to 9498291131@vtext.com
+2016-09-27 15:48:55,295 DEBUG - Send Mail: 3 times
+2016-09-27 15:49:58,659 DEBUG - Send Text: 3 times to 9498291131@vtext.com
+2016-09-27 15:49:59,897 DEBUG - Program Stopped
+2016-09-27 15:50:48,599 DEBUG - Program Closed
+2016-09-27 15:50:48,622 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4836_1.jpg
+2016-09-27 15:50:48,624 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4850.jpg
+2016-09-27 15:50:48,624 DEBUG - Folder 1: Existing file: D:\MonitorFolder\Web API ODATA.jpg
+2016-09-27 15:50:48,624 DEBUG - File Created: Path:D:\Work1\BinaryFormatter.txt Name:BinaryFormatter.txt
+2016-09-27 15:50:53,232 DEBUG - File Created: Path:D:\Work1\BufferedMediaTypeFormatter.cs Name:BufferedMediaTypeFormatter.cs
+2016-09-27 15:50:56,990 DEBUG - File Created: Path:D:\Work1\CsvFormatter Data.txt Name:CsvFormatter Data.txt
+2016-09-27 15:50:56,990 DEBUG - File Created: Path:D:\Work1\CsvFormatter.txt Name:CsvFormatter.txt
+2016-09-27 15:50:56,990 DEBUG - File Created: Path:D:\Work1\MediaTypeFormatter-Accept Header.jpg Name:MediaTypeFormatter-Accept Header.jpg
+2016-09-27 15:50:56,990 DEBUG - File Created: Path:D:\Work1\MultipartFormatter.txt Name:MultipartFormatter.txt
+2016-09-27 15:51:30,211 DEBUG - File Created: Path:D:\Work1\ProductFormatter Data.txt Name:ProductFormatter Data.txt
+2016-09-27 15:51:30,684 DEBUG - File Created: Path:D:\Work1\ProductFormatter.txt Name:ProductFormatter.txt
+2016-09-27 15:52:09,864 DEBUG - File Deleted: Path:D:\Work1\BinaryFormatter.txt
+2016-09-27 15:52:09,886 DEBUG - File Deleted: Path:D:\Work1\BufferedMediaTypeFormatter.cs
+2016-09-27 15:52:09,888 DEBUG - File Deleted: Path:D:\Work1\CsvFormatter Data.txt
+2016-09-27 15:52:09,888 DEBUG - File Deleted: Path:D:\Work1\CsvFormatter.txt
+2016-09-27 15:52:09,888 DEBUG - File Deleted: Path:D:\Work1\MediaTypeFormatter-Accept Header.jpg
+2016-09-27 15:52:14,830 DEBUG - File Deleted: Path:D:\Work1\MultipartFormatter.txt
+2016-09-27 15:52:17,453 DEBUG - File Deleted: Path:D:\Work1\ProductFormatter Data.txt
+2016-09-27 15:52:17,453 DEBUG - File Deleted: Path:D:\Work1\ProductFormatter.txt
+2016-09-27 15:52:17,453 DEBUG - Program Stopped
+2016-09-27 15:52:17,453 DEBUG - Program Closed
+2016-09-27 15:54:17,199 DEBUG - Program Loaded
+2016-09-27 15:54:19,596 DEBUG - Program Started
+2016-09-27 15:55:21,561 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4836_1.jpg
+2016-09-27 15:55:23,148 DEBUG - Folder 1: Existing file: D:\MonitorFolder\DSC_4850.jpg
+2016-09-27 15:56:24,514 DEBUG - Folder 1: Existing file: D:\MonitorFolder\Web API ODATA.jpg
+2016-09-27 15:56:26,011 DEBUG - Program Closed
