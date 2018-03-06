@@ -122,3 +122,38 @@ GO
 ALTER TABLE [dbo].[WatchTask] CHECK CONSTRAINT [FK_WatchTask_WatchTask]
 GO
 
+
+/****** Object:  Table [dbo].[EMailAddress]    Script Date: 3/5/2018 11:17:06 PM ******/
+CREATE TABLE [dbo].[EMailAddress] (
+	[Id]                [int] NOT NULL,
+	[EMailAddress]      [varchar](50) NULL,
+	[NickName]          [varchar](50) NULL,
+	[PrintName]         [varchar](50) NULL,
+	[FirstName]         [varchar](50) NULL,
+	[MiddleName]        [varchar](50) NULL,
+	[LastName]          [varchar](50) NULL,
+ CONSTRAINT [PK_EMail] PRIMARY KEY CLUSTERED 
+(	[Id] ASC ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[EMailGroup]    Script Date: 3/5/2018 11:17:06 PM ******/
+CREATE TABLE [dbo].[EMailGroup](
+	[Id]                [int] NULL,
+	[Name]              [varchar](50) NULL,
+	[Description]       [varchar](100) NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[EMailGroupList]    Script Date: 3/5/2018 11:17:06 PM ******/
+CREATE TABLE [dbo].[EMailGroupList](
+	[Id]                [int] IDENTITY(1,1) NOT NULL,
+	[EMailGroupId]      [int] NOT NULL,
+	[EMailAddressId]    [int] NOT NULL,
+ CONSTRAINT [PK_EMailGroupList] PRIMARY KEY CLUSTERED 
+(	[EMailGroupId] ASC,
+	[EMailAddressId] ASC
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
