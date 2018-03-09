@@ -2,7 +2,8 @@
 USE [FileManager]
 GO
 
-DROP TABLE Action
+IF OBJECT_ID('dbo.Action', 'U') IS NOT NULL 
+    DROP TABLE Action;
 GO
 CREATE TABLE [dbo].[Action](
 	[Id]            [tinyint] NULL,
@@ -19,47 +20,67 @@ INSERT [dbo].[Action] ([Id], [Name]) VALUES (5, N'Zip')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (6, N'UnZip')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (7, N'Encrypt')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (8, N'Decrypt')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (9, N'Zip Password')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (10, N'UnZip Password')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (11, N'FTP Upload')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (12, N'FTP Download')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (13, N'FTP Move')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (14, N'FTP Rename')
-INSERT [dbo].[Action] ([Id], [Name]) VALUES (15, N'FTP Delete')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (9, N'New Folder')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (10, N'Zip Password')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (11, N'UnZip Password')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (12, N'FTP Upload')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (13, N'FTP Download')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (14, N'FTP Move')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (15, N'FTP Rename')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (16, N'FTP Delete')
 
 SELECT * FROM Action
 
-Id   Name
----- --------------------------------------------------
-0    None
-1    Copy
-2    Move
-3    Rename
-4    Delete
-5    Zip
-6    UnZip
-7    Encrypt
-8    Decrypt
-9    Zip Password
-10   UnZip Password
-11   FTP Upload
-12   FTP Download
-13   FTP Move
-14   FTP Rename
-15   FTP Delete
+--Id   Name
+------ --------------------------------------------------
+--0    None
+--1    Copy
+--2    Move
+--3    Rename
+--4    Delete
+--5    Zip
+--6    UnZip
+--7    Encrypt
+--8    Decrypt
+--9    New Folder
+--9    Zip Password
+--10   UnZip Password
+--11   FTP Upload
+--12   FTP Download
+--13   FTP Move
+--14   FTP Rename
+--15   FTP Delete
 
-
-/****** Object:  Table [dbo].[WatchTask]    Script Date: 3/5/2018 7:35:43 PM ******/
-DROP TABLE WatchTask
+IF OBJECT_ID('dbo,FileEvent', 'U') IS NOT NULL 
+    DROP TABLE FileEvent;
 GO
-CREATE TABLE [dbo].[WatchTask](
+--Task Table의 Child Table이다.
+CREATE TABLE [dbo].[FileEvent](
+	[Id]                [int] NOT NULL,
+	[TaskId]            [int] NULL,
+	[Serial]            [tinyint] NULL,
+	[Name]              [varchar](50) NULL,
+	[isActive]          [bit] NULL,
+	[FileNamePattern]   [varchar](50) NULL,     --999*.txt, 888*.txt, 777-YYYYMMDD*.txt (기본적으로 OR조건으로 하나만 Pattern이 Match되어도 된다)
+	[FileNameExt]       [varchar](20) NULL,     --txt, out, csv
+	[isAND]             [bit] NULL              --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
+) ON [PRIMARY]                                  --여러개의 FIle이 있어야만 실행할 수 있는 작업의 경우 사용할 수 있다.
+GO
+
+/****** Object:  Table [dbo].[Task]    Script Date: 3/5/2018 7:35:43 PM ******/
+IF OBJECT_ID('dbo.Task', 'U') IS NOT NULL 
+    DROP TABLE Task
+GO
+--Job Table의 Child Table이다.
+CREATE TABLE [dbo].[Task](
 	[Id]                [int] NOT NULL,
 	[Name]              [varchar](50) NULL,
 	[ProcessId]         [int] NULL,
 	[JobId]             [int] NULL,
-	[Sequence]          [tinyint] NULL,
+	[Serial]            [tinyint] NULL,
 	[isActive]          [bit] NULL,
-	[WatchPattern]      [varchar](100) NULL,
+	[FileNamePattern]   [varchar](1000) NULL,   --[FileEvent].[FileNamePattern]를 모두 comma로 연결하여 1개의 String으로 보관한다
+	[FileNameExt]       [varchar](20) NULL,     --[FileEvent].[FileNameExt]를 모두 comma로 연결하여 1개의 String으로 보관한다
 	[isAND]             [bit] NULL,             --만일 true이면 WatchPattern에 나열된 Pattern이 모두 AND조건을 충족해야 한다. 
 	[ActionId]          [tinyint] NULL,         --예를들어 "777*.txt, 888*.out, 999.txt"의 경우 3가지 Patter의 File이 모두 있어야 실행이 된다.
 	[SourceFTPId]       [smallint] NULL,        --Default:null, Source FTP login information
@@ -75,20 +96,22 @@ CREATE TABLE [dbo].[WatchTask](
 	[EMailGroupId]      [smallint] NULL,
 	[StatusNotify]      [bit] NULL,
 	[ResultNotify]      [bit] NULL,
- CONSTRAINT [PK_WatchTask] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Task] PRIMARY KEY CLUSTERED 
 (	[Id] ASC  ) ON [PRIMARY]
 ) ON [PRIMARY]
 
-SELECT * FROM WatchTask
+SELECT * FROM Task
 
-/****** Object:  Table [dbo].[WatchJob]    Script Date: 3/5/2018 7:35:43 PM ******/
-DROP TABLE WatchJob
+/****** Object:  Table [dbo].[Job]    Script Date: 3/5/2018 7:35:43 PM ******/
+IF OBJECT_ID('dbo.Job', 'U') IS NOT NULL 
+    DROP TABLE Job
 GO
-CREATE TABLE [dbo].[WatchJob](
+--Process Table의 Child Table이다.
+CREATE TABLE [dbo].[Job](
 	[Id]                [int] IDENTITY(1,1) NOT NULL,
 	[Name]              [varchar](50) NULL,
 	[ProcessId]         [int] NULL,
-	[Sequence]          [tinyint] NULL,
+	[Serial]            [tinyint] NULL,
 	[isActive]          [bit] NULL,
 	[GroupName]         [varchar](50) NULL,
 	[GroupCondition]    [bit] NOT NULL,     
@@ -96,42 +119,45 @@ CREATE TABLE [dbo].[WatchJob](
 	[EMailGroupId]      [smallint] NULL,
 	[StatusNotify]      [bit] NULL,
 	[ResultNotify]      [bit] NULL,
- CONSTRAINT [PK_WatchJob] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Job] PRIMARY KEY CLUSTERED 
 (	[Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 
-/****** Object:  Table [dbo].[WatchProcess]    Script Date: 3/5/2018 7:35:43 PM ******/
-DROP TABLE WatchProcess
+/****** Object:  Table [dbo].[Process]    Script Date: 3/5/2018 7:35:43 PM ******/
+IF OBJECT_ID('dbo.Process', 'U') IS NOT NULL 
+    DROP TABLE Process
 GO
-CREATE TABLE [dbo].[WatchProcess](
+CREATE TABLE [dbo].[Process](
 	[Id]                [int] IDENTITY(1,1) NOT NULL,
 	[Name]              [varchar](50) NULL,
 	[isActive]          [bit] NULL,
 	[Priority]          [tinyint] NULL,         --0:Top Priority
 	[OwnerId]           [int] NULL,
 	[FolderPath]        [varchar](100) NULL,
- CONSTRAINT [PK_WatchProcess] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Process] PRIMARY KEY CLUSTERED 
 (	[Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 
-/****** Object:  Table [dbo].[WatchOwner]    Script Date: 3/5/2018 7:35:43 PM ******/
-DROP TABLE WatchOwner
+/****** Object:  Table [dbo].[Owner]    Script Date: 3/5/2018 7:35:43 PM ******/
+IF OBJECT_ID('dbo.Owner', 'U') IS NOT NULL 
+    DROP TABLE Owner
 GO
-CREATE TABLE [dbo].[WatchOwner](
+CREATE TABLE [dbo].[Owner](
 	[Id]                [int] NOT NULL,
 	[Name]              [varchar](50) NULL,
 	[isActive]          [bit] NULL,
 	[Description]       [varchar](100) NULL,
 	[Grade]             [tinyint] NULL,         --0:Administrator, 1:SuperUser, 
 	[OwnerGroup]        [varchar](50) NULL,
- CONSTRAINT [PK_WatchOwner] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Owner] PRIMARY KEY CLUSTERED 
 (	[Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 /****** Object:  Table [dbo].[EMailAddress]    Script Date: 3/5/2018 11:17:06 PM ******/
-DROP TABLE EMailAddress
+IF OBJECT_ID('dbo.EMailAddress', 'U') IS NOT NULL 
+    DROP TABLE EMailAddress
 GO
 CREATE TABLE [dbo].[EMailAddress] (
 	[Id]                [int] NOT NULL,
@@ -147,7 +173,8 @@ CREATE TABLE [dbo].[EMailAddress] (
 GO
 
 /****** Object:  Table [dbo].[EMailGroup]    Script Date: 3/5/2018 11:17:06 PM ******/
-DROP TABLE EMailGroup
+IF OBJECT_ID('dbo.EMailGroup', 'U') IS NOT NULL 
+    DROP TABLE EMailGroup
 GO
 CREATE TABLE [dbo].[EMailGroup](
 	[Id]                [int] NULL,
@@ -157,7 +184,8 @@ CREATE TABLE [dbo].[EMailGroup](
 GO
 
 /****** Object:  Table [dbo].[EMailGroupList]    Script Date: 3/5/2018 11:17:06 PM ******/
-DROP TABLE EMailGroupList
+IF OBJECT_ID('dbo.EMailGroupList', 'U') IS NOT NULL 
+    DROP TABLE EMailGroupList
 GO
 CREATE TABLE [dbo].[EMailGroupList](
 	[Id]                [int] IDENTITY(1,1) NOT NULL,
@@ -169,6 +197,9 @@ CREATE TABLE [dbo].[EMailGroupList](
 GO
 
 /****** Object:  Table [dbo].[FTPSite]    Script Date: 3/5/2018 11:17:06 PM ******/
+IF OBJECT_ID('dbo.FTPSite', 'U') IS NOT NULL 
+    DROP TABLE FTPSite
+GO
 CREATE TABLE [dbo].[FTPSite] (
 	[Id]                [int] NOT NULL,
 	[Name]              [varchar](50) NULL,
@@ -182,32 +213,31 @@ CREATE TABLE [dbo].[FTPSite] (
 ) ON [PRIMARY]
 GO
 
-
-ALTER TABLE [dbo].[WatchJob]  WITH CHECK 
-    ADD  CONSTRAINT [FK_WatchJob_WatchProcess] FOREIGN KEY([ProcessId])     REFERENCES [dbo].[WatchProcess] ([Id])
+ALTER TABLE [dbo].[Job]  WITH CHECK 
+    ADD  CONSTRAINT [FK_Job_WatchProcess] FOREIGN KEY([ProcessId])     REFERENCES [dbo].[Process] ([Id])
 GO
 
-ALTER TABLE [dbo].[WatchJob] CHECK CONSTRAINT [FK_WatchJob_WatchProcess]
+ALTER TABLE [dbo].[Job] CHECK CONSTRAINT [FK_Job_Process]
 GO
 
-ALTER TABLE [dbo].[WatchProcess]  WITH CHECK 
-    ADD  CONSTRAINT [FK_WatchProcess_WatchOwner] FOREIGN KEY([OwnerId])     REFERENCES [dbo].[WatchOwner] ([Id])
+ALTER TABLE [dbo].[Process]  WITH CHECK 
+    ADD  CONSTRAINT [FK_Process_Owner] FOREIGN KEY([OwnerId])     REFERENCES [dbo].[Owner] ([Id])
 GO
 
-ALTER TABLE [dbo].[WatchProcess] CHECK CONSTRAINT [FK_WatchProcess_WatchOwner]
+ALTER TABLE [dbo].[Process] CHECK CONSTRAINT [FK_Process_Owner]
 GO
 
-ALTER TABLE [dbo].[WatchTask]  WITH CHECK 
-    ADD  CONSTRAINT [FK_WatchTask_WatchJob] FOREIGN KEY([JobId])            REFERENCES [dbo].[WatchJob] ([Id])
+ALTER TABLE [dbo].[Task]  WITH CHECK 
+    ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])            REFERENCES [dbo].[Job] ([Id])
 GO
 
-ALTER TABLE [dbo].[WatchTask] CHECK CONSTRAINT [FK_WatchTask_WatchJob]
+ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Job]
 GO
-ALTER TABLE [dbo].[WatchTask]  WITH CHECK 
-    ADD  CONSTRAINT [FK_WatchTask_WatchTask] FOREIGN KEY([Id])              REFERENCES [dbo].[WatchTask] ([Id])
+ALTER TABLE [dbo].[Task]  WITH CHECK 
+    ADD  CONSTRAINT [FK_Task_Task] FOREIGN KEY([Id])              REFERENCES [dbo].[Task] ([Id])
 GO
 
-ALTER TABLE [dbo].[WatchTask] CHECK CONSTRAINT [FK_WatchTask_WatchTask]
+ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Task]
 GO
 
 
