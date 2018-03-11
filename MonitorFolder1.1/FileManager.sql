@@ -6,8 +6,8 @@ IF OBJECT_ID('dbo.Action', 'U') IS NOT NULL
     DROP TABLE Action;
 GO
 CREATE TABLE [dbo].[Action] (
-	[Id]            [tinyint] NULL,
-	[Name]          [varchar](50) NULL
+    [Id]            [tinyint] NULL,
+    [Name]          [varchar](50) NULL
 ) ON [PRIMARY]
 GO
 
@@ -56,13 +56,13 @@ IF OBJECT_ID('dbo.FileEvent', 'U') IS NOT NULL
 GO
 --Task Table의 Child Table이다.
 CREATE TABLE [dbo].[FileEvent] (
-	[Id]                [int] NOT NULL,
-	[TaskId]            [int] NULL,
-	[Serial]            [tinyint] NULL,
-	[Name]              [varchar](50) NULL,
-	[isActive]          [bit] NULL,
-	[FileNamePattern]   [varchar](50) NULL,     --999*.txt, 888*.txt, 777-YYYYMMDD*.txt (기본적으로 OR조건으로 하나만 Pattern이 Match되어도 된다)
-	[isAND]             [bit] NULL DEFAULT 0    --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
+    [Id]                [int] NOT NULL,
+    [TaskId]            [int] NULL,
+    [Serial]            [tinyint] NULL,
+    [Name]              [varchar](50) NULL,
+    [isActive]          [bit] NULL,
+    [FileNamePattern]   [varchar](50) NULL,     --999*.txt, 888*.txt, 777-YYYYMMDD*.txt (기본적으로 OR조건으로 하나만 Pattern이 Match되어도 된다)
+    [isAND]             [bit] NULL DEFAULT 0    --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
 ) ON [PRIMARY]                                  --여러개의 FIle이 있어야만 실행할 수 있는 작업의 경우 사용할 수 있다.
 GO
 
@@ -72,29 +72,28 @@ IF OBJECT_ID('dbo.Task', 'U') IS NOT NULL
 GO
 --Job Table의 Child Table이다.
 CREATE TABLE [dbo].[Task] (
-	[Id]                [int] NOT NULL,
-	[Name]              [varchar](50) NULL,
+    [Id]                [int] NOT NULL,
+    [Name]              [varchar](50) NULL,
   --[ProcessId]         [int] NULL,
-	[JobId]             [int] NULL,
-	[Serial]            [tinyint] NULL,
-	[ActionId]          [tinyint] NULL,
-	[isActive]          [bit] NULL,
-	[FileNamePattern]   [varchar](1000) NULL,   --[FileEvent].[FileNamePattern]를 모두 comma로 연결하여 1개의 String으로 보관한다
-	[SourceFTPId]       [smallint] NULL,        --Default:null, Source FTP login information
-	[SourcePath]        [varchar](100) NULL,    
-	[SourceFileName]    [varbinary](50) NULL,   --Only One File
-	[TargetFTPId]       [smallint] NULL,        --Default:null, Target FTP login information
-	[TargetPath]        [varchar](100) NULL,    --Check TargetPath exist if not then create Folder
-	[SubFolderPattern]  [varchar](50) NULL,     --Default:null, FileName has pattern then Create Folder as Pattern and copy the file to the folder
-	[TargetFileName]    [varbinary](50) NULL,   --Only One File
-	[isOverwrite]       [bit] NULL DEFAULT 1,   --if false then 'FileName + (Index)' and save
-	[FilePassword]      [varchar](50) NULL,     --Zip/UnZip Password, Encrypt/Decrypt Password
-	[EMail]             [varchar](50) NULL,
-	[EMailGroupId]      [smallint] NULL,
-	[StatusNotify]      [bit] NULL,
-	[ResultNotify]      [bit] NULL,
+    [JobId]             [int] NULL,
+    [Serial]            [tinyint] NULL,
+    [ActionId]          [tinyint] NULL,
+    [isActive]          [bit] NULL,
+    [SourceFTPId]       [smallint] NULL,        --Default:null, Source FTP login information
+    [SourcePath]        [varchar](100) NULL,    
+    [SourceFileName]    [varbinary](50) NULL,   --Only One File
+    [TargetFTPId]       [smallint] NULL,        --Default:null, Target FTP login information
+    [TargetPath]        [varchar](100) NULL,    --Check TargetPath exist if not then create Folder
+    [SubFolderPattern]  [varchar](50) NULL,     --Default:null, FileName has pattern then Create Folder as Pattern and copy the file to the folder
+    [TargetFileName]    [varbinary](50) NULL,   --Only One File
+    [isOverwrite]       [bit] NULL DEFAULT 1,   --if false then 'FileName + (Index)' and save
+    [FilePassword]      [varchar](50) NULL,     --Zip/UnZip Password, Encrypt/Decrypt Password
+    [EMail]             [varchar](50) NULL,
+    [EMailGroupId]      [smallint] NULL,
+    [StatusNotify]      [bit] NULL,
+    [ResultNotify]      [bit] NULL,
  CONSTRAINT [PK_Task] PRIMARY KEY CLUSTERED 
-(	[Id] ASC  ) ON [PRIMARY]
+(   [Id] ASC  ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 --ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])   REFERENCES [dbo].[Job] ([Id])
@@ -112,19 +111,19 @@ IF OBJECT_ID('dbo.Job', 'U') IS NOT NULL
 GO
 --Process Table의 Child Table이다.
 CREATE TABLE [dbo].[Job](
-	[Id]                [int] IDENTITY(1,1) NOT NULL,
-	[Name]              [varchar](50) NULL,
-	[ProcessId]         [int] NULL,
-	[Serial]            [tinyint] NULL,
-	[isActive]          [bit] NULL,
-	[GroupName]         [varchar](50) NULL,
-	[GroupCondition]    [bit] NOT NULL,     
-	[EMail]             [varchar](50) NULL,
-	[EMailGroupId]      [smallint] NULL,
-	[StatusNotify]      [bit] NULL,
-	[ResultNotify]      [bit] NULL,
+    [Id]                [int] IDENTITY(1,1) NOT NULL,
+    [Name]              [varchar](50) NULL,
+    [ProcessId]         [int] NULL,
+    [Serial]            [tinyint] NULL,
+    [isActive]          [bit] NULL,
+    [GroupName]         [varchar](50) NULL,
+    [GroupCondition]    [bit] NOT NULL,     
+    [EMail]             [varchar](50) NULL,
+    [EMailGroupId]      [smallint] NULL,
+    [StatusNotify]      [bit] NULL,
+    [ResultNotify]      [bit] NULL,
  CONSTRAINT [PK_Job] PRIMARY KEY CLUSTERED 
-(	[Id] ASC ) ON [PRIMARY]
+(   [Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 --ALTER TABLE [dbo].[Job]  WITH CHECK ADD  CONSTRAINT [FK_Job_Process] FOREIGN KEY([ProcessId])  REFERENCES [dbo].[Process] ([Id])
@@ -141,14 +140,14 @@ IF OBJECT_ID('dbo.Process', 'U') IS NOT NULL
 GO
 
 CREATE TABLE [dbo].[Process](
-	[Id]                [int] IDENTITY(1,1) NOT NULL,
-	[Name]              [varchar](50) NULL,
-	[isActive]          [bit] NULL,
-	[Priority]          [tinyint] NULL DEFAULT 255,         --1 byte:0-255, 0:Top Priority
-	[OwnerId]           [int] NULL,
-	[FolderPath]        [varchar](100) NULL,
+    [Id]                [int] IDENTITY(1,1) NOT NULL,
+    [Name]              [varchar](50) NULL,
+    [isActive]          [bit] NULL,
+    [Priority]          [tinyint] NULL DEFAULT 255,         --1 byte:0-255, 0:Top Priority
+    [WatchFolderPath]   [varchar](100) NULL,
+    [OwnerId]           [int] NULL,
  CONSTRAINT [PK_Process] PRIMARY KEY CLUSTERED 
-(	[Id] ASC ) ON [PRIMARY]
+(   [Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 --ALTER TABLE [dbo].[Process]  WITH CHECK ADD  CONSTRAINT [FK_Process_Owner] FOREIGN KEY([OwnerId])  REFERENCES [dbo].[Owner] ([Id])
@@ -161,14 +160,14 @@ IF OBJECT_ID('dbo.Owner', 'U') IS NOT NULL
     DROP TABLE Owner
 GO
 CREATE TABLE [dbo].[Owner](
-	[Id]                [int] NOT NULL,
-	[Name]              [varchar](50) NULL,
-	[isActive]          [bit] NULL,
-	[Description]       [varchar](100) NULL,
-	[Grade]             [tinyint] NULL,         --0:Administrator, 1:SuperUser, 
-	[OwnerGroup]        [varchar](50) NULL,
+    [Id]                [int] NOT NULL,
+    [Name]              [varchar](50) NULL,
+    [isActive]          [bit] NULL,
+    [Description]       [varchar](100) NULL,
+    [Grade]             [tinyint] NULL,         --0:Administrator, 1:SuperUser, 
+    [OwnerGroup]        [varchar](50) NULL,
  CONSTRAINT [PK_Owner] PRIMARY KEY CLUSTERED 
-(	[Id] ASC ) ON [PRIMARY]
+(   [Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
 /****** Object:  Table [dbo].[EMailAddress]    Script Date: 3/5/2018 11:17:06 PM ******/
@@ -176,15 +175,15 @@ IF OBJECT_ID('dbo.EMailAddress', 'U') IS NOT NULL
     DROP TABLE EMailAddress
 GO
 CREATE TABLE [dbo].[EMailAddress] (
-	[Id]                [int] NOT NULL,
-	[EMailAddress]      [varchar](50) NULL,
-	[NickName]          [varchar](50) NULL,
-	[PrintName]         [varchar](50) NULL,
-	[FirstName]         [varchar](50) NULL,
-	[MiddleName]        [varchar](50) NULL,
-	[LastName]          [varchar](50) NULL,
+    [Id]                [int] NOT NULL,
+    [EMailAddress]      [varchar](50) NULL,
+    [NickName]          [varchar](50) NULL,
+    [PrintName]         [varchar](50) NULL,
+    [FirstName]         [varchar](50) NULL,
+    [MiddleName]        [varchar](50) NULL,
+    [LastName]          [varchar](50) NULL,
  CONSTRAINT [PK_EMail] PRIMARY KEY CLUSTERED 
-(	[Id] ASC ) ON [PRIMARY]
+(   [Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -193,9 +192,9 @@ IF OBJECT_ID('dbo.EMailGroup', 'U') IS NOT NULL
     DROP TABLE EMailGroup
 GO
 CREATE TABLE [dbo].[EMailGroup](
-	[Id]                [int] NULL,
-	[Name]              [varchar](50) NULL,
-	[Description]       [varchar](100) NULL
+    [Id]                [int] NULL,
+    [Name]              [varchar](50) NULL,
+    [Description]       [varchar](100) NULL
 ) ON [PRIMARY]
 GO
 
@@ -204,11 +203,11 @@ IF OBJECT_ID('dbo.EMailGroupList', 'U') IS NOT NULL
     DROP TABLE EMailGroupList
 GO
 CREATE TABLE [dbo].[EMailGroupList](
-	[Id]                [int] IDENTITY(1,1) NOT NULL,
-	[EMailGroupId]      [int] NOT NULL,
-	[EMailAddressId]    [int] NOT NULL,
+    [Id]                [int] IDENTITY(1,1) NOT NULL,
+    [EMailGroupId]      [int] NOT NULL,
+    [EMailAddressId]    [int] NOT NULL,
  CONSTRAINT [PK_EMailGroupList] PRIMARY KEY CLUSTERED 
-(	[EMailGroupId] ASC, [EMailAddressId] ASC  )  ON [PRIMARY]
+(   [EMailGroupId] ASC, [EMailAddressId] ASC  )  ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -217,15 +216,15 @@ IF OBJECT_ID('dbo.FTPSite', 'U') IS NOT NULL
     DROP TABLE FTPSite
 GO
 CREATE TABLE [dbo].[FTPSite] (
-	[Id]                [int] NOT NULL,
-	[Name]              [varchar](50) NULL,
-	[HostName]          [varchar](50) NULL,
-	[UserName]          [varchar](50) NULL,
-	[Password]          [varchar](50) NULL,
-	[Protocol]          [varchar](10) NULL,
-	[Port]              [smallint] NULL,
+    [Id]                [int] NOT NULL,
+    [Name]              [varchar](50) NULL,
+    [HostName]          [varchar](50) NULL,
+    [UserName]          [varchar](50) NULL,
+    [Password]          [varchar](50) NULL,
+    [Protocol]          [varchar](10) NULL,
+    [Port]              [smallint] NULL,
  CONSTRAINT [PK_FTPSite] PRIMARY KEY CLUSTERED 
-(	[Id] ASC )  ON [PRIMARY]
+(   [Id] ASC )  ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
