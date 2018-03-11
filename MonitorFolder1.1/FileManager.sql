@@ -5,7 +5,7 @@ GO
 IF OBJECT_ID('dbo.Action', 'U') IS NOT NULL 
     DROP TABLE Action;
 GO
-CREATE TABLE [dbo].[Action](
+CREATE TABLE [dbo].[Action] (
 	[Id]            [tinyint] NULL,
 	[Name]          [varchar](50) NULL
 ) ON [PRIMARY]
@@ -51,19 +51,18 @@ SELECT * FROM Action
 --14   FTP Rename
 --15   FTP Delete
 
-IF OBJECT_ID('dbo,FileEvent', 'U') IS NOT NULL 
+IF OBJECT_ID('dbo.FileEvent', 'U') IS NOT NULL 
     DROP TABLE FileEvent;
 GO
 --Task Table의 Child Table이다.
-CREATE TABLE [dbo].[FileEvent](
+CREATE TABLE [dbo].[FileEvent] (
 	[Id]                [int] NOT NULL,
 	[TaskId]            [int] NULL,
 	[Serial]            [tinyint] NULL,
 	[Name]              [varchar](50) NULL,
 	[isActive]          [bit] NULL,
 	[FileNamePattern]   [varchar](50) NULL,     --999*.txt, 888*.txt, 777-YYYYMMDD*.txt (기본적으로 OR조건으로 하나만 Pattern이 Match되어도 된다)
-	[FileNameExt]       [varchar](20) NULL,     --txt, out, csv
-	[isAND]             [bit] NULL              --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
+	[isAND]             [bit] NULL DEFAULT 0    --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
 ) ON [PRIMARY]                                  --여러개의 FIle이 있어야만 실행할 수 있는 작업의 경우 사용할 수 있다.
 GO
 
@@ -72,17 +71,15 @@ IF OBJECT_ID('dbo.Task', 'U') IS NOT NULL
     DROP TABLE Task
 GO
 --Job Table의 Child Table이다.
-CREATE TABLE [dbo].[Task](
+CREATE TABLE [dbo].[Task] (
 	[Id]                [int] NOT NULL,
 	[Name]              [varchar](50) NULL,
-	[ProcessId]         [int] NULL,
+  --[ProcessId]         [int] NULL,
 	[JobId]             [int] NULL,
 	[Serial]            [tinyint] NULL,
+	[ActionId]          [tinyint] NULL,
 	[isActive]          [bit] NULL,
 	[FileNamePattern]   [varchar](1000) NULL,   --[FileEvent].[FileNamePattern]를 모두 comma로 연결하여 1개의 String으로 보관한다
-	[FileNameExt]       [varchar](20) NULL,     --[FileEvent].[FileNameExt]를 모두 comma로 연결하여 1개의 String으로 보관한다
-	[isAND]             [bit] NULL,             --만일 true이면 WatchPattern에 나열된 Pattern이 모두 AND조건을 충족해야 한다. 
-	[ActionId]          [tinyint] NULL,         --예를들어 "777*.txt, 888*.out, 999.txt"의 경우 3가지 Patter의 File이 모두 있어야 실행이 된다.
 	[SourceFTPId]       [smallint] NULL,        --Default:null, Source FTP login information
 	[SourcePath]        [varchar](100) NULL,    
 	[SourceFileName]    [varbinary](50) NULL,   --Only One File
@@ -90,7 +87,7 @@ CREATE TABLE [dbo].[Task](
 	[TargetPath]        [varchar](100) NULL,    --Check TargetPath exist if not then create Folder
 	[SubFolderPattern]  [varchar](50) NULL,     --Default:null, FileName has pattern then Create Folder as Pattern and copy the file to the folder
 	[TargetFileName]    [varbinary](50) NULL,   --Only One File
-	[isAppend]          [bit] NULL,             --if true then 'FileName + (Index)' and save
+	[isOverwrite]       [bit] NULL DEFAULT 1,   --if false then 'FileName + (Index)' and save
 	[FilePassword]      [varchar](50) NULL,     --Zip/UnZip Password, Encrypt/Decrypt Password
 	[EMail]             [varchar](50) NULL,
 	[EMailGroupId]      [smallint] NULL,
@@ -100,7 +97,14 @@ CREATE TABLE [dbo].[Task](
 (	[Id] ASC  ) ON [PRIMARY]
 ) ON [PRIMARY]
 
+--ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])   REFERENCES [dbo].[Job] ([Id])
+--ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Job]
+--ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Task] FOREIGN KEY([Id])     REFERENCES [dbo].[Task] ([Id])
+--ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Task]
+--GO
+
 SELECT * FROM Task
+
 
 /****** Object:  Table [dbo].[Job]    Script Date: 3/5/2018 7:35:43 PM ******/
 IF OBJECT_ID('dbo.Job', 'U') IS NOT NULL 
@@ -123,21 +127,33 @@ CREATE TABLE [dbo].[Job](
 (	[Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
 
+--ALTER TABLE [dbo].[Job]  WITH CHECK ADD  CONSTRAINT [FK_Job_Process] FOREIGN KEY([ProcessId])  REFERENCES [dbo].[Process] ([Id])
+--ALTER TABLE [dbo].[Job] CHECK CONSTRAINT [FK_Job_Process]
+--GO
+
 
 /****** Object:  Table [dbo].[Process]    Script Date: 3/5/2018 7:35:43 PM ******/
+
 IF OBJECT_ID('dbo.Process', 'U') IS NOT NULL 
+  --SELECT * FROM sys.foreign_keys WHERE referenced_object_id = object_id('Process')
+  --ALTER TABLE [dbo].[Process] DROP CONSTRAINT [FK_Process_Owner]
     DROP TABLE Process
 GO
+
 CREATE TABLE [dbo].[Process](
 	[Id]                [int] IDENTITY(1,1) NOT NULL,
 	[Name]              [varchar](50) NULL,
 	[isActive]          [bit] NULL,
-	[Priority]          [tinyint] NULL,         --0:Top Priority
+	[Priority]          [tinyint] NULL DEFAULT 255,         --1 byte:0-255, 0:Top Priority
 	[OwnerId]           [int] NULL,
 	[FolderPath]        [varchar](100) NULL,
  CONSTRAINT [PK_Process] PRIMARY KEY CLUSTERED 
 (	[Id] ASC ) ON [PRIMARY]
 ) ON [PRIMARY]
+
+--ALTER TABLE [dbo].[Process]  WITH CHECK ADD  CONSTRAINT [FK_Process_Owner] FOREIGN KEY([OwnerId])  REFERENCES [dbo].[Owner] ([Id])
+--ALTER TABLE [dbo].[Process] CHECK CONSTRAINT [FK_Process_Owner]
+--GO
 
 
 /****** Object:  Table [dbo].[Owner]    Script Date: 3/5/2018 7:35:43 PM ******/
@@ -213,31 +229,18 @@ CREATE TABLE [dbo].[FTPSite] (
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[Job]  WITH CHECK 
-    ADD  CONSTRAINT [FK_Job_WatchProcess] FOREIGN KEY([ProcessId])     REFERENCES [dbo].[Process] ([Id])
+
+ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])   REFERENCES [dbo].[Job] ([Id])
+ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Job]
 GO
 
+ALTER TABLE [dbo].[Job]  WITH CHECK ADD  CONSTRAINT [FK_Job_Process] FOREIGN KEY([ProcessId])  REFERENCES [dbo].[Process] ([Id])
 ALTER TABLE [dbo].[Job] CHECK CONSTRAINT [FK_Job_Process]
 GO
 
-ALTER TABLE [dbo].[Process]  WITH CHECK 
-    ADD  CONSTRAINT [FK_Process_Owner] FOREIGN KEY([OwnerId])     REFERENCES [dbo].[Owner] ([Id])
-GO
-
+ALTER TABLE [dbo].[Process]  WITH CHECK ADD  CONSTRAINT [FK_Process_Owner] FOREIGN KEY([OwnerId])  REFERENCES [dbo].[Owner] ([Id])
 ALTER TABLE [dbo].[Process] CHECK CONSTRAINT [FK_Process_Owner]
 GO
 
-ALTER TABLE [dbo].[Task]  WITH CHECK 
-    ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])            REFERENCES [dbo].[Job] ([Id])
-GO
-
-ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Job]
-GO
-ALTER TABLE [dbo].[Task]  WITH CHECK 
-    ADD  CONSTRAINT [FK_Task_Task] FOREIGN KEY([Id])              REFERENCES [dbo].[Task] ([Id])
-GO
-
-ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Task]
-GO
 
 
