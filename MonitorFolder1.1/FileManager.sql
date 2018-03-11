@@ -28,6 +28,9 @@ INSERT [dbo].[Action] ([Id], [Name]) VALUES (13, N'FTP Download')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (14, N'FTP Move')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (15, N'FTP Rename')
 INSERT [dbo].[Action] ([Id], [Name]) VALUES (16, N'FTP Delete')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (20, N'EXEC DTS Package')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (21, N'DOS Command')
+INSERT [dbo].[Action] ([Id], [Name]) VALUES (22, N'PowerShell Command')
 
 SELECT * FROM Action
 
@@ -43,18 +46,47 @@ SELECT * FROM Action
 --7    Encrypt
 --8    Decrypt
 --9    New Folder
---9    Zip Password
---10   UnZip Password
---11   FTP Upload
---12   FTP Download
---13   FTP Move
---14   FTP Rename
---15   FTP Delete
+--10   Zip Password
+--11   UnZip Password
+--12   FTP Upload
+--13   FTP Download
+--14   FTP Move
+--15   FTP Rename
+--16   FTP Delete
+--20   EXEC DTS Package
+--21   DOS Command
+--22   PowerShell Command
+
+IF OBJECT_ID('dbo.TimeEvent', 'U') IS NOT NULL 
+    DROP TABLE TimeEvent;
+GO
+--Task Table의 Child Table이다.
+CREATE TABLE [dbo].[TimeEvent] (
+    [Id]                [int] NOT NULL,
+    [ProcessId]         [int] NULL,             --실행시킬 Process ID 또는 
+    [JobId]             [int] NULL,             --실행시킬 Job ID     또는   
+    [TaskId]            [int] NULL,             --실행시킬 Task ID
+    [Serial]            [tinyint] NULL,
+    [Name]              [varchar](50) NULL,
+    [Description]       [varchar](100) NULL,
+    [isActive]          [bit] NULL,
+    [EventType]         [tinyint] NULL,         --0:One time, 1:Daily, 2: Weekly, 3:Monthly, 4:Repeat
+    [EventDateTime]     [DateTime] NULL,
+    [EventDays]         [varchar](20) NULL,     --If Schedule == 2-Weekly Then 1:Monday - 0:Sunday, 1,3,5: Monday,Wednesday,Friday
+    [EventHour]         [tinyint] NULL          --If EventType == 4:Repeat Then EventHour has repeat hours. ex) 2: every 2 hours from [EventDateTime]
+) ON [PRIMARY]
+GO
+
+--public enum DayOfWeek
+--{
+--    Sunday = 0, Monday = 1, Tuesday = 2, Wednesday = 3, Thursday = 4, Friday = 5, Saturday = 6
+--}
 
 IF OBJECT_ID('dbo.FileEvent', 'U') IS NOT NULL 
     DROP TABLE FileEvent;
 GO
 --Task Table의 Child Table이다.
+--Process가 Monitor하고 있는 Folder에 [FileNamePattern]에 Match되는 File에 생성이 되면 Event가 Fire되어 Task를 실행한다
 CREATE TABLE [dbo].[FileEvent] (
     [Id]                [int] NOT NULL,
     [TaskId]            [int] NULL,
@@ -62,10 +94,12 @@ CREATE TABLE [dbo].[FileEvent] (
     [Name]              [varchar](50) NULL,
     [isActive]          [bit] NULL,
     [FileNamePattern]   [varchar](50) NULL,     --999*.txt, 888*.txt, 777-YYYYMMDD*.txt (기본적으로 OR조건으로 하나만 Pattern이 Match되어도 된다)
-    [isAND]             [bit] NULL DEFAULT 0    --만일 TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
+    [EventType]         [char] NULL,            --C:Created, M:Changed, R:Renamed, D:Deleted
+    [isAND]             [bit] NULL DEFAULT 0    --if isAND == TRUE이면 같은 TaskId의 FIleNamePattern은 모두 만족해야 Task를 실행 할수 있다.
 ) ON [PRIMARY]                                  --여러개의 FIle이 있어야만 실행할 수 있는 작업의 경우 사용할 수 있다.
 GO
-
+--ALTER TABLE dbo.FileEvent ADD CONSTRAINT CK_FileEvent_EventType CHECK (EventType IN ('C', 'M', 'R', 'D'))
+    
 /****** Object:  Table [dbo].[Task]    Script Date: 3/5/2018 7:35:43 PM ******/
 IF OBJECT_ID('dbo.Task', 'U') IS NOT NULL 
     DROP TABLE Task
@@ -228,6 +262,8 @@ CREATE TABLE [dbo].[FTPSite] (
 ) ON [PRIMARY]
 GO
 
+ALTER TABLE dbo.FileEvent ADD CONSTRAINT CK_FileEvent_EventType CHECK (EventType IN ('C', 'M', 'R', 'D'))
+GO
 
 ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Job] FOREIGN KEY([JobId])   REFERENCES [dbo].[Job] ([Id])
 ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Job]
